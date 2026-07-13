@@ -39,6 +39,7 @@
     feature = "egui31",
     feature = "egui32",
     feature = "egui33",
+    feature = "egui35"
 )))]
 compile_error!("at least one egui version must be enabled");
 
@@ -58,6 +59,8 @@ use egui31 as egui;
 use egui32 as egui;
 #[cfg(feature = "egui33")]
 use egui33 as egui;
+#[cfg(feature = "egui35")]
+use egui35 as egui;
 
 use egui::{epaint, style};
 
@@ -66,8 +69,13 @@ pub use themes::*;
 
 /// Apply the given theme to a [`Context`](egui::Context).
 pub fn set_theme(ctx: &egui::Context, theme: Theme) {
-    let old = ctx.style().visuals.clone();
-    ctx.set_visuals(theme.visuals(old));
+    #[cfg(not(feature = "egui35"))]
+    {
+        let old = ctx.style().visuals.clone();
+        ctx.set_visuals(theme.visuals(old));
+    }
+    #[cfg(feature = "egui35")]
+    ctx.set_visuals(theme.visuals(ctx.global_style().visuals.to_owned()));
 }
 
 /// Apply the given theme to a [`Style`](egui::Style).
